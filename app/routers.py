@@ -38,7 +38,7 @@ async def get_last_trading_dates(
             .limit(days_back)
         )
         result = await db.execute(stmt)  # Выполняем ORM-запрос
-        dates = result.scalars().all()   # Преобразуем в список дат
+        dates = result.scalars().all()  # Преобразуем в список дат
 
         ttl = await cache.get_ttl()
         await cache.set(cache_key, dates, ttl)
@@ -55,12 +55,20 @@ async def get_last_trading_dates(
 async def get_dynamics(
     start_date: str = Query(..., description="Начальная дата"),
     end_date: str = Query(..., description="Конечная дата"),
-    oil_id: str = Query(None, description="Фильтр по коду нефтепродукта"),
-    delivery_type_id: str = Query(None, description="Фильтр по типу поставки"),
-    delivery_basis_id: str = Query(None, description="Фильтр по базису поставки"),
+    oil_id: str | None = Query(None, description="Фильтр по коду нефтепродукта"),
+    delivery_type_id: str | None = Query(None, description="Фильтр по типу поставки"),
+    delivery_basis_id: str | None = Query(
+        None, description="Фильтр по базису поставки"
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     """Получение списка торгов за заданный период"""
+
+    cache_key = f"dynamics: {start_date}, {end_date}, {oil_id}, {delivery_type_id}, {delivery_basis_id}"
+    cached_data = await cache.get(cache_key)
+    if cached_data is not None:
+        logger.info(f"Берём данные из кэша по ключу {cache_key}")
+        return cached_data
 
     try:
         stmt = select(SpimexTradingResults).where(
@@ -78,21 +86,41 @@ async def get_dynamics(
 
         result = await db.execute(stmt)
         trades = result.scalars().all()
+
+        # Преобразуем объекты SQLalchemy в dict для корректного сохранения в Redis
+        trades_dict = [
+            TradingResults.model_validate(trade).model_dump() for trade in trades
+        ]
+        ttl = await cache.get_ttl()
+        await cache.set(cache_key, trades_dict, ttl)
+        logger.info(f"Сохраняем данные в кэш по ключу {cache_key}")
+
     except Exception as e:
         logger.error(f"Ошибка при получении данных {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка при получении данных: {e}")
+
     return trades
 
 
 @router.get("/trading-results", response_model=list[TradingResults])
 async def get_trading_results(
     limit: int = Query(default=10, description="Количество последних торгов"),
-    oil_id: str = Query(None, description="Фильтр по коду нефтепродукта"),
-    delivery_type_id: str = Query(None, description="Фильтр по типу поставки"),
-    delivery_basis_id: str = Query(None, description="Фильтр по базису поставки"),
+    oil_id: str | None = Query(None, description="Фильтр по коду нефтепродукта"),
+    delivery_type_id: str | None = Query(None, description="Фильтр по типу поставки"),
+    delivery_basis_id: str | None = Query(
+        None, description="Фильтр по базису поставки"
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     """Получение списка последних торгов"""
+
+    cache_key = (
+        f"trading_results: {limit}, {oil_id}, {delivery_type_id}, {delivery_basis_id}"
+    )
+    cached_data = await cache.get(cache_key)
+    if cached_data is not None:
+        logger.info(f"Берём данные из кэша по ключу {cache_key}")
+        return cached_data
 
     try:
         stmt = select(SpimexTradingResults).limit(limit)
@@ -108,6 +136,15 @@ async def get_trading_results(
 
         result = await db.execute(stmt)
         trades = result.scalars().all()
+
+        trades_dict = [
+            TradingResults.model_validate(trade).model_dump() for trade in trades
+        ]
+        ttl = await cache.get_ttl()
+        await cache.set(cache_key, trades_dict, ttl)
+        logger.info(f"Сохраняем данные в кэш по ключу {cache_key}")
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка при получении данных: {e}")
+
     return trades

@@ -20,6 +20,6 @@
      REDIS_PORT = 6379
 7. Выполните в терминале следующие команды:
      cd app
-     uvicorn main:app --port 8000 --reload
+     uvicorn main:app --reload
 8. Проверьте эндпоинты, вводя URL для них в адресную строку.
  
