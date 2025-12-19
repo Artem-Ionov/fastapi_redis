@@ -3,23 +3,20 @@ from datetime import datetime, time
 
 import redis.asyncio as redis
 
-from config import REDIS_HOST, REDIS_PORT
+from config import settings
 
 
 class RedisCache:
     def __init__(self):
-        # Подключаемся к серверу Redis
         self.redis = redis.Redis(
-            host=REDIS_HOST, port=REDIS_PORT, decode_responses=True
+            host=settings.REDIS_HOST, port=settings.REDIS_PORT, decode_responses=True
         )
 
     async def get(self, key: str):
-        """Получить данные из кэша по ключу"""
         data = await self.redis.get(key)
         return json.loads(data) if data else None
 
     async def set(self, key: str, value, ttl: int):
-        """Сохранить в кэш по ключу с временем жизни time-to-leave"""
         await self.redis.set(key, json.dumps(value), ex=ttl)
 
     async def get_ttl(self) -> int:

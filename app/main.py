@@ -3,15 +3,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from config import setup_logging
-# Выполняем настройку до импортирования функций, чтобы в них работало логирование
-setup_logging()
 import routers
+from config import setup_logging
+from middleware import catch_exceptions_middleware
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Действия, выполняющиеся при старте и завершении приложения"""
+    setup_logging()
     logger = logging.getLogger(__name__)
     logger.info("Начало работы приложения")
     yield
@@ -20,11 +19,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Данные о торгах", lifespan=lifespan)
 
-# Подключаем остальные маршруты
+app.middleware("http")(catch_exceptions_middleware)
+
 app.include_router(routers.router)
-
-
-@app.get("/")
-async def root():
-    """Корневой маршрут для проверки работоспособности"""
-    return {"message": "Добро пожаловать!"}

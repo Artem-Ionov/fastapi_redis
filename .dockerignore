@@ -1,0 +1,10 @@
+/.venv/
+/.git/
+app/logs/
+.ruff_cache/
+__pycache__/
+.env
+.gitignore
+Dockerfile
+docker-compose.yml
+.dockerignore

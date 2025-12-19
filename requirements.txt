@@ -16,7 +16,6 @@ pathspec==0.12.1
 platformdirs==4.5.1
 pydantic==2.12.5
 pydantic_core==2.41.5
-python-dotenv==1.2.1
 pytokens==0.3.0
 redis==7.1.0
 ruff==0.14.8

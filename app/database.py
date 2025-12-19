@@ -4,11 +4,12 @@ from sqlalchemy import Column, DateTime, Float, Integer, String
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
-from config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
+from config import settings
 
-db_url = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-engine = create_async_engine(db_url)        # Создаём асинхронный движок
-AsyncSession = async_sessionmaker(engine)   # Асинхронную фабрику сессий
+
+db_url = f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASS}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+engine = create_async_engine(db_url)
+AsyncSession = async_sessionmaker(engine)
 
 
 async def get_db():
@@ -18,12 +19,10 @@ async def get_db():
 
 
 class Base(DeclarativeBase):
-    """Базовый класс для всех моделей, в который можно занести общий функционал"""
     pass
 
 
 class SpimexTradingResults(Base):
-    """Класс-модель для взаимодействия с БД"""
 
     __tablename__ = "spimex_trading_results"
 

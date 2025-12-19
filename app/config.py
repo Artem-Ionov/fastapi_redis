@@ -1,18 +1,27 @@
 import logging
 import os
 
-from dotenv import load_dotenv
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
-load_dotenv()
 
-DB_USER = os.environ.get("DB_USER")
-DB_PASS = os.environ.get("DB_PASS")
-DB_HOST = os.environ.get("DB_HOST")
-DB_PORT = os.environ.get("DB_PORT")
-DB_NAME = os.environ.get("DB_NAME")
+class Settings(BaseSettings):
 
-REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
-REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))  # Порт для Redis должен быть целым
+    DB_USER: str = Field(..., description="Имя пользователя БД")
+    DB_PASS: str = Field(..., description="Пароль пользователя БД")
+    DB_HOST: str = Field("localhost", description="Хост БД")
+    DB_PORT: str = Field("5432", description="Порт БД")
+    DB_NAME: str = Field(..., description="Название БД")
+
+    REDIS_HOST: str = Field("localhost", description="Хост Redis")
+    REDIS_PORT: int = Field(6379, description="Потр Redis")
+
+    class Config:
+        env_file = "../.env"
+        env_file_encoding = "utf-8"
+
+
+settings = Settings()
 
 
 def setup_logging():

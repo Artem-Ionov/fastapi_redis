@@ -1,13 +1,13 @@
 Чтобы запустить этот проект локально на компьютере, выполните следующее:
 1. Настройте среду разработки python (версия указана в файле runtime.txt) и PostgreSQL.
 2. Рекомендуется настроить виртуальное окружение. Для этого в терминале выполните следующие команды:
-     python -m venv название_окружения
-     название_окружения\Scripts\activate
+     `python -m venv название_окружения`
+     `название_окружения\Scripts\activate`
 3. Перейдите в желаемую папку и клонируйте git-репозиторий с помощью следующих команд:
-     cd путь_к_вашей_папке
-     git clone git@github.com:Artem-Ionov/fastapi_redis.git
+     `cd путь_к_вашей_папке`
+     `git clone git@github.com:Artem-Ionov/fastapi_redis.git`
 4. Установите необходимые зависимости (указаны в файле requirments.txt). Для этого можно выполнить в терминале команду: 
-     pip install -r requirements.txt
+     `pip install -r requirements.txt`
 5. Создайте для проекта базу данных в PostgreSQL и таблицу SpimexTradingResults с помощью программы из 
 темы про асинхронность.
 6. В корне проекта создайте файл .env со следующим содержимым:
@@ -19,7 +19,7 @@
      REDIS_HOST = localhost
      REDIS_PORT = 6379
 7. Выполните в терминале следующие команды:
-     cd app
-     uvicorn main:app --reload
+     `cd app`
+     `uvicorn main:app --reload`
 8. Проверьте эндпоинты, вводя URL для них в адресную строку.
  

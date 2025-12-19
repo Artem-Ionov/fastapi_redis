@@ -15,5 +15,4 @@ class TradingResults(BaseModel):
     date: str
 
     class Config:
-        # Обеспечивает взаимодействие с моделями SQLalchemy
-        from_attributes = True
+        from_attributes = True  # Обеспечивает взаимодействие с моделями SQLalchemy
