@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 cache = RedisCache()
 
-class CasheHandler:
+class CacheHandler:
     def __init__(self, key: str):
         self.key = key
 
@@ -31,7 +31,7 @@ class CasheHandler:
 
 async def get_cache(request: Request):
     cache_key = str(request.url)     # для redis_cache
-    return CasheHandler(cache_key)
+    return CacheHandler(cache_key)
 
 
 async def get_dates(
